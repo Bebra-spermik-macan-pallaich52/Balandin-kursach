@@ -1,0 +1,1297 @@
+[
+  {
+    "table": "departments",
+    "comment": "Подразделения предприятия",
+    "fields": [
+      {
+        "name": "id",
+        "keys": [
+          "PK"
+        ],
+        "type": "BIGINT",
+        "nullable": false,
+        "default": "IDENTITY",
+        "description": "Идентификатор подразделения"
+      },
+      {
+        "name": "code",
+        "keys": [
+          "UQ"
+        ],
+        "type": "VARCHAR(20)",
+        "nullable": false,
+        "default": "—",
+        "description": "Уникальный код"
+      },
+      {
+        "name": "name",
+        "keys": [
+          "UQ"
+        ],
+        "type": "VARCHAR(200)",
+        "nullable": false,
+        "default": "—",
+        "description": "Название подразделения"
+      },
+      {
+        "name": "is_active",
+        "keys": [],
+        "type": "BOOLEAN",
+        "nullable": false,
+        "default": "true",
+        "description": "Действует ли отдел"
+      },
+      {
+        "name": "created_at",
+        "keys": [],
+        "type": "TIMESTAMP WITH TIME ZONE",
+        "nullable": false,
+        "default": "now()",
+        "description": "Дата создания (UTC)"
+      },
+      {
+        "name": "updated_at",
+        "keys": [],
+        "type": "TIMESTAMP WITH TIME ZONE",
+        "nullable": false,
+        "default": "now()",
+        "description": "Дата последнего изменения через ORM (UTC)"
+      }
+    ],
+    "foreign_keys": [],
+    "unique": [
+      {
+        "column_names": [
+          "code"
+        ],
+        "name": "uq_departments_code",
+        "comment": null,
+        "dialect_options": {
+          "postgresql_include": [],
+          "postgresql_nulls_not_distinct": false
+        }
+      },
+      {
+        "column_names": [
+          "name"
+        ],
+        "name": "uq_departments_name",
+        "comment": null,
+        "dialect_options": {
+          "postgresql_include": [],
+          "postgresql_nulls_not_distinct": false
+        }
+      }
+    ],
+    "indexes": [
+      {
+        "name": "uq_departments_code",
+        "unique": true,
+        "column_names": [
+          "code"
+        ],
+        "duplicates_constraint": "uq_departments_code",
+        "include_columns": [],
+        "dialect_options": {
+          "postgresql_include": []
+        }
+      },
+      {
+        "name": "uq_departments_name",
+        "unique": true,
+        "column_names": [
+          "name"
+        ],
+        "duplicates_constraint": "uq_departments_name",
+        "include_columns": [],
+        "dialect_options": {
+          "postgresql_include": []
+        }
+      }
+    ],
+    "checks": [
+      {
+        "name": "ck_departments_code_not_blank",
+        "sqltext": "length(TRIM(BOTH FROM code)) > 0",
+        "comment": null
+      },
+      {
+        "name": "ck_departments_name_not_blank",
+        "sqltext": "length(TRIM(BOTH FROM name)) > 0",
+        "comment": null
+      }
+    ]
+  },
+  {
+    "table": "employees",
+    "comment": "Сотрудники и их текущее подразделение",
+    "fields": [
+      {
+        "name": "id",
+        "keys": [
+          "PK"
+        ],
+        "type": "BIGINT",
+        "nullable": false,
+        "default": "IDENTITY",
+        "description": "Идентификатор сотрудника"
+      },
+      {
+        "name": "department_id",
+        "keys": [
+          "FK"
+        ],
+        "type": "BIGINT",
+        "nullable": false,
+        "default": "—",
+        "description": "Текущее подразделение сотрудника"
+      },
+      {
+        "name": "last_name",
+        "keys": [],
+        "type": "VARCHAR(100)",
+        "nullable": false,
+        "default": "—",
+        "description": "Фамилия"
+      },
+      {
+        "name": "first_name",
+        "keys": [],
+        "type": "VARCHAR(100)",
+        "nullable": false,
+        "default": "—",
+        "description": "Имя"
+      },
+      {
+        "name": "middle_name",
+        "keys": [],
+        "type": "VARCHAR(100)",
+        "nullable": true,
+        "default": "—",
+        "description": "Отчество при наличии"
+      },
+      {
+        "name": "position",
+        "keys": [],
+        "type": "VARCHAR(150)",
+        "nullable": false,
+        "default": "—",
+        "description": "Должность"
+      },
+      {
+        "name": "email",
+        "keys": [],
+        "type": "VARCHAR(254)",
+        "nullable": false,
+        "default": "—",
+        "description": "Электронная почта"
+      },
+      {
+        "name": "phone",
+        "keys": [],
+        "type": "VARCHAR(30)",
+        "nullable": false,
+        "default": "—",
+        "description": "Контактный телефон"
+      },
+      {
+        "name": "is_active",
+        "keys": [],
+        "type": "BOOLEAN",
+        "nullable": false,
+        "default": "true",
+        "description": "Работает ли сотрудник"
+      },
+      {
+        "name": "created_at",
+        "keys": [],
+        "type": "TIMESTAMP WITH TIME ZONE",
+        "nullable": false,
+        "default": "now()",
+        "description": "Дата создания (UTC)"
+      },
+      {
+        "name": "updated_at",
+        "keys": [],
+        "type": "TIMESTAMP WITH TIME ZONE",
+        "nullable": false,
+        "default": "now()",
+        "description": "Дата последнего изменения через ORM (UTC)"
+      }
+    ],
+    "foreign_keys": [
+      {
+        "name": "fk_employees_department_id_departments",
+        "constrained_columns": [
+          "department_id"
+        ],
+        "referred_schema": null,
+        "referred_table": "departments",
+        "referred_columns": [
+          "id"
+        ],
+        "options": {
+          "ondelete": "RESTRICT"
+        },
+        "comment": null
+      }
+    ],
+    "unique": [],
+    "indexes": [
+      {
+        "name": "ix_employees_department_id",
+        "unique": false,
+        "column_names": [
+          "department_id"
+        ],
+        "include_columns": [],
+        "dialect_options": {
+          "postgresql_include": []
+        }
+      },
+      {
+        "name": "ix_employees_last_name_lower",
+        "unique": false,
+        "column_names": [
+          null
+        ],
+        "expressions": [
+          "lower(last_name::text)"
+        ],
+        "include_columns": [],
+        "dialect_options": {
+          "postgresql_include": []
+        }
+      },
+      {
+        "name": "uq_employees_email_lower",
+        "unique": true,
+        "column_names": [
+          null
+        ],
+        "expressions": [
+          "lower(email::text)"
+        ],
+        "include_columns": [],
+        "dialect_options": {
+          "postgresql_include": []
+        }
+      }
+    ],
+    "checks": [
+      {
+        "name": "ck_employees_email_format",
+        "sqltext": "email::text ~ '^[^[:space:]@]+@[^[:space:]@]+[.][^[:space:]@]+$'::text",
+        "comment": null
+      },
+      {
+        "name": "ck_employees_first_name_not_blank",
+        "sqltext": "length(TRIM(BOTH FROM first_name)) > 0",
+        "comment": null
+      },
+      {
+        "name": "ck_employees_last_name_not_blank",
+        "sqltext": "length(TRIM(BOTH FROM last_name)) > 0",
+        "comment": null
+      },
+      {
+        "name": "ck_employees_phone_not_blank",
+        "sqltext": "length(TRIM(BOTH FROM phone)) > 0",
+        "comment": null
+      },
+      {
+        "name": "ck_employees_position_not_blank",
+        "sqltext": "length(TRIM(BOTH FROM \"position\")) > 0",
+        "comment": null
+      }
+    ]
+  },
+  {
+    "table": "employee_personal_data",
+    "comment": "Кадровые персональные данные, отдельные от публичной карточки сотрудника",
+    "fields": [
+      {
+        "name": "employee_id",
+        "keys": [
+          "PK",
+          "FK"
+        ],
+        "type": "BIGINT",
+        "nullable": false,
+        "default": "—",
+        "description": "Идентификатор сотрудника; связь 1:0..1"
+      },
+      {
+        "name": "passport_series",
+        "keys": [
+          "UQ*"
+        ],
+        "type": "VARCHAR(4)",
+        "nullable": false,
+        "default": "—",
+        "description": "Серия паспорта, 4 цифры"
+      },
+      {
+        "name": "passport_number",
+        "keys": [
+          "UQ*"
+        ],
+        "type": "VARCHAR(6)",
+        "nullable": false,
+        "default": "—",
+        "description": "Номер паспорта, 6 цифр"
+      },
+      {
+        "name": "passport_issued_by",
+        "keys": [],
+        "type": "VARCHAR(500)",
+        "nullable": false,
+        "default": "—",
+        "description": "Кем выдан паспорт"
+      },
+      {
+        "name": "passport_issued_on",
+        "keys": [],
+        "type": "DATE",
+        "nullable": false,
+        "default": "—",
+        "description": "Дата выдачи паспорта"
+      },
+      {
+        "name": "inn",
+        "keys": [
+          "UQ"
+        ],
+        "type": "VARCHAR(12)",
+        "nullable": false,
+        "default": "—",
+        "description": "ИНН физлица, 12 цифр"
+      },
+      {
+        "name": "snils",
+        "keys": [
+          "UQ"
+        ],
+        "type": "VARCHAR(11)",
+        "nullable": false,
+        "default": "—",
+        "description": "СНИЛС без разделителей"
+      },
+      {
+        "name": "registration_address",
+        "keys": [],
+        "type": "VARCHAR(500)",
+        "nullable": false,
+        "default": "—",
+        "description": "Адрес регистрации"
+      }
+    ],
+    "foreign_keys": [
+      {
+        "name": "fk_employee_personal_data_employee_id_employees",
+        "constrained_columns": [
+          "employee_id"
+        ],
+        "referred_schema": null,
+        "referred_table": "employees",
+        "referred_columns": [
+          "id"
+        ],
+        "options": {
+          "ondelete": "CASCADE"
+        },
+        "comment": null
+      }
+    ],
+    "unique": [
+      {
+        "column_names": [
+          "passport_series",
+          "passport_number"
+        ],
+        "name": "uq_employee_passport",
+        "comment": null,
+        "dialect_options": {
+          "postgresql_include": [],
+          "postgresql_nulls_not_distinct": false
+        }
+      },
+      {
+        "column_names": [
+          "inn"
+        ],
+        "name": "uq_employee_personal_data_inn",
+        "comment": null,
+        "dialect_options": {
+          "postgresql_include": [],
+          "postgresql_nulls_not_distinct": false
+        }
+      },
+      {
+        "column_names": [
+          "snils"
+        ],
+        "name": "uq_employee_personal_data_snils",
+        "comment": null,
+        "dialect_options": {
+          "postgresql_include": [],
+          "postgresql_nulls_not_distinct": false
+        }
+      }
+    ],
+    "indexes": [
+      {
+        "name": "uq_employee_passport",
+        "unique": true,
+        "column_names": [
+          "passport_series",
+          "passport_number"
+        ],
+        "duplicates_constraint": "uq_employee_passport",
+        "include_columns": [],
+        "dialect_options": {
+          "postgresql_include": []
+        }
+      },
+      {
+        "name": "uq_employee_personal_data_inn",
+        "unique": true,
+        "column_names": [
+          "inn"
+        ],
+        "duplicates_constraint": "uq_employee_personal_data_inn",
+        "include_columns": [],
+        "dialect_options": {
+          "postgresql_include": []
+        }
+      },
+      {
+        "name": "uq_employee_personal_data_snils",
+        "unique": true,
+        "column_names": [
+          "snils"
+        ],
+        "duplicates_constraint": "uq_employee_personal_data_snils",
+        "include_columns": [],
+        "dialect_options": {
+          "postgresql_include": []
+        }
+      }
+    ],
+    "checks": [
+      {
+        "name": "ck_employee_personal_data_address_not_blank",
+        "sqltext": "length(TRIM(BOTH FROM registration_address)) > 0",
+        "comment": null
+      },
+      {
+        "name": "ck_employee_personal_data_inn_format",
+        "sqltext": "inn::text ~ '^[0-9]{12}$'::text",
+        "comment": null
+      },
+      {
+        "name": "ck_employee_personal_data_issuer_not_blank",
+        "sqltext": "length(TRIM(BOTH FROM passport_issued_by)) > 0",
+        "comment": null
+      },
+      {
+        "name": "ck_employee_personal_data_passport_number_format",
+        "sqltext": "passport_number::text ~ '^[0-9]{6}$'::text",
+        "comment": null
+      },
+      {
+        "name": "ck_employee_personal_data_passport_series_format",
+        "sqltext": "passport_series::text ~ '^[0-9]{4}$'::text",
+        "comment": null
+      },
+      {
+        "name": "ck_employee_personal_data_snils_format",
+        "sqltext": "snils::text ~ '^[0-9]{11}$'::text",
+        "comment": null
+      }
+    ]
+  },
+  {
+    "table": "users",
+    "comment": "Учетные записи. Только хеш пароля, авторизация реализуется позднее",
+    "fields": [
+      {
+        "name": "id",
+        "keys": [
+          "PK"
+        ],
+        "type": "BIGINT",
+        "nullable": false,
+        "default": "IDENTITY",
+        "description": "Идентификатор учетной записи"
+      },
+      {
+        "name": "employee_id",
+        "keys": [
+          "FK",
+          "UQ"
+        ],
+        "type": "BIGINT",
+        "nullable": false,
+        "default": "—",
+        "description": "Сотрудник; одна учетная запись на сотрудника"
+      },
+      {
+        "name": "role_code",
+        "keys": [
+          "FK"
+        ],
+        "type": "VARCHAR(32)",
+        "nullable": false,
+        "default": "'employee'::character varying",
+        "description": "Одна из четырех ролей ТЗ"
+      },
+      {
+        "name": "username",
+        "keys": [],
+        "type": "VARCHAR(100)",
+        "nullable": false,
+        "default": "—",
+        "description": "Логин без учета регистра"
+      },
+      {
+        "name": "password_hash",
+        "keys": [],
+        "type": "VARCHAR(255)",
+        "nullable": false,
+        "default": "—",
+        "description": "Самоописываемый хеш пароля"
+      },
+      {
+        "name": "is_active",
+        "keys": [],
+        "type": "BOOLEAN",
+        "nullable": false,
+        "default": "true",
+        "description": "Разрешен ли вход"
+      },
+      {
+        "name": "created_at",
+        "keys": [],
+        "type": "TIMESTAMP WITH TIME ZONE",
+        "nullable": false,
+        "default": "now()",
+        "description": "Дата создания (UTC)"
+      },
+      {
+        "name": "updated_at",
+        "keys": [],
+        "type": "TIMESTAMP WITH TIME ZONE",
+        "nullable": false,
+        "default": "now()",
+        "description": "Дата последнего изменения через ORM (UTC)"
+      }
+    ],
+    "foreign_keys": [
+      {
+        "name": "fk_users_employee_id_employees",
+        "constrained_columns": [
+          "employee_id"
+        ],
+        "referred_schema": null,
+        "referred_table": "employees",
+        "referred_columns": [
+          "id"
+        ],
+        "options": {
+          "ondelete": "RESTRICT"
+        },
+        "comment": null
+      },
+      {
+        "name": "fk_users_role_code_roles",
+        "constrained_columns": [
+          "role_code"
+        ],
+        "referred_schema": null,
+        "referred_table": "roles",
+        "referred_columns": [
+          "code"
+        ],
+        "options": {
+          "ondelete": "RESTRICT"
+        },
+        "comment": null
+      }
+    ],
+    "unique": [
+      {
+        "column_names": [
+          "employee_id"
+        ],
+        "name": "uq_users_employee_id",
+        "comment": null,
+        "dialect_options": {
+          "postgresql_include": [],
+          "postgresql_nulls_not_distinct": false
+        }
+      }
+    ],
+    "indexes": [
+      {
+        "name": "ix_users_role_code",
+        "unique": false,
+        "column_names": [
+          "role_code"
+        ],
+        "include_columns": [],
+        "dialect_options": {
+          "postgresql_include": []
+        }
+      },
+      {
+        "name": "uq_users_employee_id",
+        "unique": true,
+        "column_names": [
+          "employee_id"
+        ],
+        "duplicates_constraint": "uq_users_employee_id",
+        "include_columns": [],
+        "dialect_options": {
+          "postgresql_include": []
+        }
+      },
+      {
+        "name": "uq_users_username_lower",
+        "unique": true,
+        "column_names": [
+          null
+        ],
+        "expressions": [
+          "lower(username::text)"
+        ],
+        "include_columns": [],
+        "dialect_options": {
+          "postgresql_include": []
+        }
+      }
+    ],
+    "checks": [
+      {
+        "name": "ck_users_password_hash_not_blank",
+        "sqltext": "length(TRIM(BOTH FROM password_hash)) > 0",
+        "comment": null
+      },
+      {
+        "name": "ck_users_username_not_blank",
+        "sqltext": "length(TRIM(BOTH FROM username)) > 0",
+        "comment": null
+      }
+    ]
+  },
+  {
+    "table": "roles",
+    "comment": "Роли пользователей из технического задания",
+    "fields": [
+      {
+        "name": "code",
+        "keys": [
+          "PK"
+        ],
+        "type": "VARCHAR(32)",
+        "nullable": false,
+        "default": "—",
+        "description": "Код роли"
+      },
+      {
+        "name": "name",
+        "keys": [
+          "UQ"
+        ],
+        "type": "VARCHAR(100)",
+        "nullable": false,
+        "default": "—",
+        "description": "Название роли"
+      }
+    ],
+    "foreign_keys": [],
+    "unique": [
+      {
+        "column_names": [
+          "name"
+        ],
+        "name": "uq_roles_name",
+        "comment": null,
+        "dialect_options": {
+          "postgresql_include": [],
+          "postgresql_nulls_not_distinct": false
+        }
+      }
+    ],
+    "indexes": [
+      {
+        "name": "uq_roles_name",
+        "unique": true,
+        "column_names": [
+          "name"
+        ],
+        "duplicates_constraint": "uq_roles_name",
+        "include_columns": [],
+        "dialect_options": {
+          "postgresql_include": []
+        }
+      }
+    ],
+    "checks": []
+  },
+  {
+    "table": "tasks",
+    "comment": "Производственные задачи; один ответственный исполнитель",
+    "fields": [
+      {
+        "name": "id",
+        "keys": [
+          "PK"
+        ],
+        "type": "BIGINT",
+        "nullable": false,
+        "default": "IDENTITY",
+        "description": "Идентификатор задачи"
+      },
+      {
+        "name": "department_id",
+        "keys": [
+          "FK"
+        ],
+        "type": "BIGINT",
+        "nullable": false,
+        "default": "—",
+        "description": "Подразделение задачи"
+      },
+      {
+        "name": "title",
+        "keys": [],
+        "type": "VARCHAR(250)",
+        "nullable": false,
+        "default": "—",
+        "description": "Заголовок задачи"
+      },
+      {
+        "name": "description",
+        "keys": [],
+        "type": "TEXT",
+        "nullable": true,
+        "default": "—",
+        "description": "Подробное описание"
+      },
+      {
+        "name": "assignee_id",
+        "keys": [
+          "FK"
+        ],
+        "type": "BIGINT",
+        "nullable": true,
+        "default": "—",
+        "description": "Ответственный исполнитель задачи"
+      },
+      {
+        "name": "created_by_id",
+        "keys": [
+          "FK"
+        ],
+        "type": "BIGINT",
+        "nullable": false,
+        "default": "—",
+        "description": "Учетная запись постановщика задачи"
+      },
+      {
+        "name": "status_code",
+        "keys": [
+          "FK"
+        ],
+        "type": "VARCHAR(32)",
+        "nullable": false,
+        "default": "'new'::character varying",
+        "description": "Текущее состояние kanban-карточки"
+      },
+      {
+        "name": "priority",
+        "keys": [],
+        "type": "SMALLINT",
+        "nullable": false,
+        "default": "'2'::smallint",
+        "description": "Приоритет: 1 низкий, 2 обычный, 3 высокий, 4 срочный"
+      },
+      {
+        "name": "due_at",
+        "keys": [],
+        "type": "TIMESTAMP WITH TIME ZONE",
+        "nullable": true,
+        "default": "—",
+        "description": "Плановый срок выполнения"
+      },
+      {
+        "name": "completed_at",
+        "keys": [],
+        "type": "TIMESTAMP WITH TIME ZONE",
+        "nullable": true,
+        "default": "—",
+        "description": "Фактическое время выполнения"
+      },
+      {
+        "name": "completed_by_id",
+        "keys": [
+          "FK"
+        ],
+        "type": "BIGINT",
+        "nullable": true,
+        "default": "—",
+        "description": "Пользователь, подтвердивший выполнение"
+      },
+      {
+        "name": "is_archived",
+        "keys": [],
+        "type": "BOOLEAN",
+        "nullable": false,
+        "default": "false",
+        "description": "Скрыта ли карточка с рабочей доски"
+      },
+      {
+        "name": "created_at",
+        "keys": [],
+        "type": "TIMESTAMP WITH TIME ZONE",
+        "nullable": false,
+        "default": "now()",
+        "description": "Дата создания (UTC)"
+      },
+      {
+        "name": "updated_at",
+        "keys": [],
+        "type": "TIMESTAMP WITH TIME ZONE",
+        "nullable": false,
+        "default": "now()",
+        "description": "Дата последнего изменения через ORM (UTC)"
+      }
+    ],
+    "foreign_keys": [
+      {
+        "name": "fk_tasks_assignee_id_employees",
+        "constrained_columns": [
+          "assignee_id"
+        ],
+        "referred_schema": null,
+        "referred_table": "employees",
+        "referred_columns": [
+          "id"
+        ],
+        "options": {
+          "ondelete": "RESTRICT"
+        },
+        "comment": null
+      },
+      {
+        "name": "fk_tasks_completed_by_id_users",
+        "constrained_columns": [
+          "completed_by_id"
+        ],
+        "referred_schema": null,
+        "referred_table": "users",
+        "referred_columns": [
+          "id"
+        ],
+        "options": {
+          "ondelete": "RESTRICT"
+        },
+        "comment": null
+      },
+      {
+        "name": "fk_tasks_created_by_id_users",
+        "constrained_columns": [
+          "created_by_id"
+        ],
+        "referred_schema": null,
+        "referred_table": "users",
+        "referred_columns": [
+          "id"
+        ],
+        "options": {
+          "ondelete": "RESTRICT"
+        },
+        "comment": null
+      },
+      {
+        "name": "fk_tasks_department_id_departments",
+        "constrained_columns": [
+          "department_id"
+        ],
+        "referred_schema": null,
+        "referred_table": "departments",
+        "referred_columns": [
+          "id"
+        ],
+        "options": {
+          "ondelete": "RESTRICT"
+        },
+        "comment": null
+      },
+      {
+        "name": "fk_tasks_status_code_task_statuses",
+        "constrained_columns": [
+          "status_code"
+        ],
+        "referred_schema": null,
+        "referred_table": "task_statuses",
+        "referred_columns": [
+          "code"
+        ],
+        "options": {
+          "ondelete": "RESTRICT"
+        },
+        "comment": null
+      }
+    ],
+    "unique": [],
+    "indexes": [
+      {
+        "name": "ix_tasks_assignee_due",
+        "unique": false,
+        "column_names": [
+          "assignee_id",
+          "due_at"
+        ],
+        "include_columns": [],
+        "dialect_options": {
+          "postgresql_include": []
+        }
+      },
+      {
+        "name": "ix_tasks_completed_at",
+        "unique": false,
+        "column_names": [
+          "completed_at"
+        ],
+        "include_columns": [],
+        "dialect_options": {
+          "postgresql_include": []
+        }
+      },
+      {
+        "name": "ix_tasks_completed_by_id",
+        "unique": false,
+        "column_names": [
+          "completed_by_id"
+        ],
+        "include_columns": [],
+        "dialect_options": {
+          "postgresql_include": []
+        }
+      },
+      {
+        "name": "ix_tasks_created_by_id",
+        "unique": false,
+        "column_names": [
+          "created_by_id"
+        ],
+        "include_columns": [],
+        "dialect_options": {
+          "postgresql_include": []
+        }
+      },
+      {
+        "name": "ix_tasks_department_status",
+        "unique": false,
+        "column_names": [
+          "department_id",
+          "status_code"
+        ],
+        "include_columns": [],
+        "dialect_options": {
+          "postgresql_include": []
+        }
+      }
+    ],
+    "checks": [
+      {
+        "name": "ck_tasks_completion_after_creation",
+        "sqltext": "completed_at IS NULL OR completed_at >= created_at",
+        "comment": null
+      },
+      {
+        "name": "ck_tasks_completion_consistent",
+        "sqltext": "status_code::text = 'done'::text AND completed_at IS NOT NULL AND completed_by_id IS NOT NULL AND assignee_id IS NOT NULL OR status_code::text <> 'done'::text AND completed_at IS NULL AND completed_by_id IS NULL",
+        "comment": null
+      },
+      {
+        "name": "ck_tasks_due_after_creation",
+        "sqltext": "due_at IS NULL OR due_at >= created_at",
+        "comment": null
+      },
+      {
+        "name": "ck_tasks_priority_range",
+        "sqltext": "priority >= 1 AND priority <= 4",
+        "comment": null
+      },
+      {
+        "name": "ck_tasks_title_not_blank",
+        "sqltext": "length(TRIM(BOTH FROM title)) > 0",
+        "comment": null
+      }
+    ]
+  },
+  {
+    "table": "task_statuses",
+    "comment": "Справочник колонок kanban-доски",
+    "fields": [
+      {
+        "name": "code",
+        "keys": [
+          "PK"
+        ],
+        "type": "VARCHAR(32)",
+        "nullable": false,
+        "default": "—",
+        "description": "Код состояния"
+      },
+      {
+        "name": "name",
+        "keys": [
+          "UQ"
+        ],
+        "type": "VARCHAR(100)",
+        "nullable": false,
+        "default": "—",
+        "description": "Название колонки"
+      },
+      {
+        "name": "sort_order",
+        "keys": [
+          "UQ"
+        ],
+        "type": "INTEGER",
+        "nullable": false,
+        "default": "—",
+        "description": "Порядок колонки на доске"
+      }
+    ],
+    "foreign_keys": [],
+    "unique": [
+      {
+        "column_names": [
+          "name"
+        ],
+        "name": "uq_task_statuses_name",
+        "comment": null,
+        "dialect_options": {
+          "postgresql_include": [],
+          "postgresql_nulls_not_distinct": false
+        }
+      },
+      {
+        "column_names": [
+          "sort_order"
+        ],
+        "name": "uq_task_statuses_sort_order",
+        "comment": null,
+        "dialect_options": {
+          "postgresql_include": [],
+          "postgresql_nulls_not_distinct": false
+        }
+      }
+    ],
+    "indexes": [
+      {
+        "name": "uq_task_statuses_name",
+        "unique": true,
+        "column_names": [
+          "name"
+        ],
+        "duplicates_constraint": "uq_task_statuses_name",
+        "include_columns": [],
+        "dialect_options": {
+          "postgresql_include": []
+        }
+      },
+      {
+        "name": "uq_task_statuses_sort_order",
+        "unique": true,
+        "column_names": [
+          "sort_order"
+        ],
+        "duplicates_constraint": "uq_task_statuses_sort_order",
+        "include_columns": [],
+        "dialect_options": {
+          "postgresql_include": []
+        }
+      }
+    ],
+    "checks": [
+      {
+        "name": "ck_task_statuses_sort_order_positive",
+        "sqltext": "sort_order > 0",
+        "comment": null
+      }
+    ]
+  },
+  {
+    "table": "task_status_history",
+    "comment": "События смены состояния. Заполняются сервисом в транзакции изменения задачи",
+    "fields": [
+      {
+        "name": "id",
+        "keys": [
+          "PK"
+        ],
+        "type": "BIGINT",
+        "nullable": false,
+        "default": "IDENTITY",
+        "description": "Идентификатор события"
+      },
+      {
+        "name": "task_id",
+        "keys": [
+          "FK"
+        ],
+        "type": "BIGINT",
+        "nullable": false,
+        "default": "—",
+        "description": "Задача, состояние которой изменилось"
+      },
+      {
+        "name": "from_status_code",
+        "keys": [
+          "FK"
+        ],
+        "type": "VARCHAR(32)",
+        "nullable": true,
+        "default": "—",
+        "description": "Предыдущее состояние; NULL при создании"
+      },
+      {
+        "name": "to_status_code",
+        "keys": [
+          "FK"
+        ],
+        "type": "VARCHAR(32)",
+        "nullable": false,
+        "default": "—",
+        "description": "Новое состояние"
+      },
+      {
+        "name": "changed_by_id",
+        "keys": [
+          "FK"
+        ],
+        "type": "BIGINT",
+        "nullable": false,
+        "default": "—",
+        "description": "Пользователь, выполнивший действие"
+      },
+      {
+        "name": "changed_at",
+        "keys": [],
+        "type": "TIMESTAMP WITH TIME ZONE",
+        "nullable": false,
+        "default": "now()",
+        "description": "Время события"
+      },
+      {
+        "name": "comment",
+        "keys": [],
+        "type": "TEXT",
+        "nullable": true,
+        "default": "—",
+        "description": "Комментарий к изменению"
+      }
+    ],
+    "foreign_keys": [
+      {
+        "name": "fk_task_status_history_changed_by_id_users",
+        "constrained_columns": [
+          "changed_by_id"
+        ],
+        "referred_schema": null,
+        "referred_table": "users",
+        "referred_columns": [
+          "id"
+        ],
+        "options": {
+          "ondelete": "RESTRICT"
+        },
+        "comment": null
+      },
+      {
+        "name": "fk_task_status_history_from_status_code_task_statuses",
+        "constrained_columns": [
+          "from_status_code"
+        ],
+        "referred_schema": null,
+        "referred_table": "task_statuses",
+        "referred_columns": [
+          "code"
+        ],
+        "options": {
+          "ondelete": "RESTRICT"
+        },
+        "comment": null
+      },
+      {
+        "name": "fk_task_status_history_task_id_tasks",
+        "constrained_columns": [
+          "task_id"
+        ],
+        "referred_schema": null,
+        "referred_table": "tasks",
+        "referred_columns": [
+          "id"
+        ],
+        "options": {
+          "ondelete": "CASCADE"
+        },
+        "comment": null
+      },
+      {
+        "name": "fk_task_status_history_to_status_code_task_statuses",
+        "constrained_columns": [
+          "to_status_code"
+        ],
+        "referred_schema": null,
+        "referred_table": "task_statuses",
+        "referred_columns": [
+          "code"
+        ],
+        "options": {
+          "ondelete": "RESTRICT"
+        },
+        "comment": null
+      }
+    ],
+    "unique": [],
+    "indexes": [
+      {
+        "name": "ix_task_status_history_changed_by_id",
+        "unique": false,
+        "column_names": [
+          "changed_by_id"
+        ],
+        "include_columns": [],
+        "dialect_options": {
+          "postgresql_include": []
+        }
+      },
+      {
+        "name": "ix_task_status_history_task_changed",
+        "unique": false,
+        "column_names": [
+          "task_id",
+          "changed_at"
+        ],
+        "include_columns": [],
+        "dialect_options": {
+          "postgresql_include": []
+        }
+      }
+    ],
+    "checks": [
+      {
+        "name": "ck_task_status_history_status_changed",
+        "sqltext": "from_status_code IS NULL OR from_status_code::text <> to_status_code::text",
+        "comment": null
+      }
+    ]
+  }
+]
