@@ -1,8 +1,6 @@
-# Версии прямых и транзитивных зависимостей зафиксированы в requirements.lock.
--c requirements.lock
 fastapi==0.162.0
 uvicorn==0.54.0
 SQLAlchemy==2.0.55
 alembic==1.20.1
 psycopg[binary]==3.3.6
-pydantic-settings==2.16.2
+python-dotenv==1.2.4

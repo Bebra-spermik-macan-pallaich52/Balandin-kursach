@@ -1,6 +1,7 @@
+import pytest
 from fastapi.testclient import TestClient
 
-from app.database import get_session
+from app.database import get_database_url, get_session
 from app.main import app
 
 
@@ -26,7 +27,6 @@ def test_database_health(database):
                 assert client.get(f"/api/{version}/health").json() == {
                     "status": "ok",
                     "database": "ok",
-                    "api_version": version,
                 }
     finally:
         app.dependency_overrides.clear()
@@ -36,7 +36,7 @@ def test_database_error_is_503():
     from sqlalchemy.exc import OperationalError
 
     class BrokenSession:
-        def execute(self, statement):
+        def scalar(self, statement):
             raise OperationalError("SELECT 1", {}, Exception("not available"))
 
     app.dependency_overrides[get_session] = lambda: BrokenSession()
@@ -47,6 +47,19 @@ def test_database_error_is_503():
             assert "not available" not in response.text
     finally:
         app.dependency_overrides.clear()
+
+
+@pytest.mark.parametrize("url", ["sqlite:///test.db", "postgresql://localhost/test"])
+def test_only_psycopg_postgresql_is_allowed(monkeypatch, url):
+    monkeypatch.setenv("DATABASE_URL", url)
+    with pytest.raises(ValueError):
+        get_database_url()
+
+
+def test_postgresql_config(monkeypatch):
+    url = "postgresql+psycopg://user:password@localhost:5432/test"
+    monkeypatch.setenv("DATABASE_URL", url)
+    assert get_database_url() == url
 
 
 def test_missing_migration_is_503(database):

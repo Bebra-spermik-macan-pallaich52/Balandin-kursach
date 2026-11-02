@@ -69,12 +69,7 @@ def test_relationships_and_defaults(session, sample):
 
 
 @pytest.mark.parametrize(
-    "field,value",
-    [
-        ("last_name", ""),
-        ("first_name", "   "),
-        ("email", "invalid-email"),
-    ],
+    "field,value", [("last_name", ""), ("first_name", "   "), ("email", "invalid-email")]
 )
 def test_employee_validation(session, sample, field, value):
     setattr(sample[2], field, value)
@@ -137,6 +132,7 @@ def test_personal_data_format(session, sample, field, value):
 
 
 def test_personal_data_unique(session, sample):
+
     def details(employee_id, snils):
         return EmployeePersonalData(
             employee_id=employee_id,
@@ -202,7 +198,7 @@ def test_task_invalid_state(session, sample, field, value):
 
 
 def test_complete_task_and_history(session, sample):
-    task, user = sample[4], sample[3]
+    task, user = (sample[4], sample[3])
     task.status_code = "done"
     task.completed_at = datetime.now(timezone.utc)
     task.completed_by_id = user.id

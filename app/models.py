@@ -1,5 +1,3 @@
-"""SQLAlchemy 2 ORM. Создание схемы выполняется только миграциями Alembic."""
-
 from datetime import date, datetime, timezone
 
 import sqlalchemy as sa
@@ -21,9 +19,7 @@ class Base(DeclarativeBase):
 
 class TimestampMixin:
     created_at: Mapped[datetime] = mapped_column(
-        sa.DateTime(timezone=True),
-        server_default=sa.func.now(),
-        comment="Дата создания (UTC)",
+        sa.DateTime(timezone=True), server_default=sa.func.now(), comment="Дата создания (UTC)"
     )
     updated_at: Mapped[datetime] = mapped_column(
         sa.DateTime(timezone=True),
@@ -36,7 +32,6 @@ class TimestampMixin:
 class Role(Base):
     __tablename__ = "roles"
     __table_args__ = {"comment": "Роли пользователей из технического задания"}
-
     code: Mapped[str] = mapped_column(sa.String(32), primary_key=True, comment="Код роли")
     name: Mapped[str] = mapped_column(sa.String(100), unique=True, comment="Название роли")
     users: Mapped[list["User"]] = relationship(back_populates="role", passive_deletes="all")
@@ -49,7 +44,6 @@ class Department(TimestampMixin, Base):
         sa.CheckConstraint("length(trim(code)) > 0", name="code_not_blank"),
         {"comment": "Подразделения предприятия"},
     )
-
     id: Mapped[int] = mapped_column(
         sa.BigInteger, sa.Identity(), primary_key=True, comment="Идентификатор подразделения"
     )
@@ -57,8 +51,7 @@ class Department(TimestampMixin, Base):
     name: Mapped[str] = mapped_column(sa.String(200), unique=True, comment="Название подразделения")
     is_active: Mapped[bool] = mapped_column(server_default=sa.true(), comment="Действует ли отдел")
     employees: Mapped[list["Employee"]] = relationship(
-        back_populates="department",
-        passive_deletes="all",
+        back_populates="department", passive_deletes="all"
     )
     tasks: Mapped[list["Task"]] = relationship(back_populates="department", passive_deletes="all")
 
@@ -77,7 +70,6 @@ class Employee(TimestampMixin, Base):
         sa.Index("ix_employees_last_name_lower", sa.func.lower(sa.column("last_name"))),
         {"comment": "Сотрудники и их текущее подразделение"},
     )
-
     id: Mapped[int] = mapped_column(
         sa.BigInteger, sa.Identity(), primary_key=True, comment="Идентификатор сотрудника"
     )
@@ -97,15 +89,11 @@ class Employee(TimestampMixin, Base):
     )
     department: Mapped[Department] = relationship(back_populates="employees")
     personal_data: Mapped["EmployeePersonalData | None"] = relationship(
-        back_populates="employee",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
+        back_populates="employee", cascade="all, delete-orphan", passive_deletes=True
     )
     user: Mapped["User | None"] = relationship(back_populates="employee", passive_deletes="all")
     tasks: Mapped[list["Task"]] = relationship(
-        back_populates="assignee",
-        foreign_keys="Task.assignee_id",
-        passive_deletes="all",
+        back_populates="assignee", foreign_keys="Task.assignee_id", passive_deletes="all"
     )
 
 
@@ -121,7 +109,6 @@ class EmployeePersonalData(Base):
         sa.UniqueConstraint("passport_series", "passport_number", name="uq_employee_passport"),
         {"comment": "Кадровые персональные данные, отдельные от публичной карточки сотрудника"},
     )
-
     employee_id: Mapped[int] = mapped_column(
         sa.ForeignKey("employees.id", ondelete="CASCADE"),
         primary_key=True,
@@ -145,7 +132,6 @@ class User(TimestampMixin, Base):
         sa.Index("uq_users_username_lower", sa.func.lower(sa.column("username")), unique=True),
         {"comment": "Учетные записи. Только хеш пароля, авторизация реализуется позднее"},
     )
-
     id: Mapped[int] = mapped_column(
         sa.BigInteger, sa.Identity(), primary_key=True, comment="Идентификатор учетной записи"
     )
@@ -173,7 +159,6 @@ class TaskStatus(Base):
         sa.CheckConstraint("sort_order > 0", name="sort_order_positive"),
         {"comment": "Справочник колонок kanban-доски"},
     )
-
     code: Mapped[str] = mapped_column(sa.String(32), primary_key=True, comment="Код состояния")
     name: Mapped[str] = mapped_column(sa.String(100), unique=True, comment="Название колонки")
     sort_order: Mapped[int] = mapped_column(unique=True, comment="Порядок колонки на доске")
@@ -186,9 +171,7 @@ class Task(TimestampMixin, Base):
         sa.CheckConstraint("priority BETWEEN 1 AND 4", name="priority_range"),
         sa.CheckConstraint("due_at IS NULL OR due_at >= created_at", name="due_after_creation"),
         sa.CheckConstraint(
-            "(status_code = 'done' AND completed_at IS NOT NULL "
-            "AND completed_by_id IS NOT NULL AND assignee_id IS NOT NULL) OR "
-            "(status_code <> 'done' AND completed_at IS NULL AND completed_by_id IS NULL)",
+            "(status_code = 'done' AND completed_at IS NOT NULL AND completed_by_id IS NOT NULL AND assignee_id IS NOT NULL) OR (status_code <> 'done' AND completed_at IS NULL AND completed_by_id IS NULL)",
             name="completion_consistent",
         ),
         sa.CheckConstraint(
@@ -199,13 +182,11 @@ class Task(TimestampMixin, Base):
         sa.Index("ix_tasks_completed_at", "completed_at"),
         {"comment": "Производственные задачи; один ответственный исполнитель"},
     )
-
     id: Mapped[int] = mapped_column(
         sa.BigInteger, sa.Identity(), primary_key=True, comment="Идентификатор задачи"
     )
     department_id: Mapped[int] = mapped_column(
-        sa.ForeignKey("departments.id", ondelete="RESTRICT"),
-        comment="Подразделение задачи",
+        sa.ForeignKey("departments.id", ondelete="RESTRICT"), comment="Подразделение задачи"
     )
     title: Mapped[str] = mapped_column(sa.String(250), comment="Заголовок задачи")
     description: Mapped[str | None] = mapped_column(sa.Text, comment="Подробное описание")
@@ -244,9 +225,7 @@ class Task(TimestampMixin, Base):
     )
     department: Mapped[Department] = relationship(back_populates="tasks")
     assignee: Mapped[Employee | None] = relationship(
-        back_populates="tasks",
-        foreign_keys=[assignee_id],
-        primaryjoin="Task.assignee_id == Employee.id",
+        back_populates="tasks", foreign_keys=[assignee_id]
     )
     creator: Mapped[User] = relationship(foreign_keys=[created_by_id])
     completer: Mapped[User | None] = relationship(foreign_keys=[completed_by_id])
@@ -263,7 +242,7 @@ class Task(TimestampMixin, Base):
         return (
             self.due_at is not None
             and self.due_at < datetime.now(timezone.utc)
-            and self.status_code not in {"done", "cancelled"}
+            and (self.status_code not in {"done", "cancelled"})
         )
 
     @is_overdue.inplace.expression
@@ -285,7 +264,6 @@ class TaskStatusHistory(Base):
         sa.Index("ix_task_status_history_task_changed", "task_id", "changed_at"),
         {"comment": "События смены состояния. Заполняются сервисом в транзакции изменения задачи"},
     )
-
     id: Mapped[int] = mapped_column(
         sa.BigInteger, sa.Identity(), primary_key=True, comment="Идентификатор события"
     )
@@ -298,8 +276,7 @@ class TaskStatusHistory(Base):
         comment="Предыдущее состояние; NULL при создании",
     )
     to_status_code: Mapped[str] = mapped_column(
-        sa.ForeignKey("task_statuses.code", ondelete="RESTRICT"),
-        comment="Новое состояние",
+        sa.ForeignKey("task_statuses.code", ondelete="RESTRICT"), comment="Новое состояние"
     )
     changed_by_id: Mapped[int] = mapped_column(
         sa.ForeignKey("users.id", ondelete="RESTRICT"),

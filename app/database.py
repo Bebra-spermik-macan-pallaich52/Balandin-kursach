@@ -1,18 +1,24 @@
-from collections.abc import Generator
-from functools import lru_cache
+import os
+from pathlib import Path
 
-from sqlalchemy import Engine, create_engine
+from dotenv import load_dotenv
+from sqlalchemy import create_engine
+from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session
 
-from app.config import get_settings
+load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
 
-@lru_cache
-def get_engine() -> Engine:
-    return create_engine(get_settings().database_url, pool_pre_ping=True, hide_parameters=True)
+def get_database_url(name="DATABASE_URL"):
+    url = os.environ[name]
+    if make_url(url).drivername != "postgresql+psycopg":
+        raise ValueError("Используйте PostgreSQL: postgresql+psycopg://...")
+    return url
 
 
-def get_session() -> Generator[Session, None, None]:
-    """Сессия на запрос; будущие сервисы явно управляют commit/rollback."""
-    with Session(get_engine(), expire_on_commit=False) as session:
+engine = create_engine(get_database_url(), pool_pre_ping=True, hide_parameters=True)
+
+
+def get_session():
+    with Session(engine, expire_on_commit=False) as session:
         yield session

@@ -1,6 +1,3 @@
-"""Каждый тест работает в отдельной временной схеме PostgreSQL."""
-
-import os
 import uuid
 from pathlib import Path
 
@@ -11,23 +8,18 @@ from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session
 
 from alembic import command
+from app.database import get_database_url
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 @pytest.fixture
 def database():
-    raw_url = os.environ.get("TEST_DATABASE_URL")
-    if not raw_url:
-        pytest.fail("Задайте TEST_DATABASE_URL: тесты требуют настоящую PostgreSQL")
-    url = make_url(raw_url)
-    if url.get_backend_name() != "postgresql":
-        pytest.fail("Тестовая СУБД должна быть PostgreSQL")
+    url = make_url(get_database_url("TEST_DATABASE_URL"))
     schema = "test_" + uuid.uuid4().hex
     admin = create_engine(url)
     with admin.begin() as connection:
         connection.execute(text(f'CREATE SCHEMA "{schema}"'))
-    # public намеренно исключен: его alembic_version не должен влиять на тестовую схему.
     engine = create_engine(url, connect_args={"options": f"-csearch_path={schema}"})
     config = Config(str(ROOT / "alembic.ini"))
     config.set_main_option("script_location", str(ROOT / "alembic"))
@@ -35,7 +27,7 @@ def database():
         with engine.connect() as connection:
             config.attributes["connection"] = connection
             command.upgrade(config, "head")
-        yield engine, config
+        yield (engine, config)
     finally:
         engine.dispose()
         with admin.begin() as connection:
@@ -84,4 +76,4 @@ def sample(session):
     )
     session.add(task)
     session.commit()
-    return department, other_department, employee, user, task
+    return (department, other_department, employee, user, task)

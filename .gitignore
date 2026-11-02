@@ -1,11 +1,5 @@
-.env
 .venv/
 __pycache__/
 *.py[cod]
 .pytest_cache/
 .ruff_cache/
-.coverage
-htmlcov/
-*.egg-info/
-windows/*.exe
-windows/*.download

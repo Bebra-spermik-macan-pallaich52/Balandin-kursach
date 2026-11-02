@@ -1,9 +1,3 @@
-"""Роли из ТЗ и состояния kanban-доски.
-
-Revision ID: 0002
-Revises: 0001
-"""
-
 import sqlalchemy as sa
 
 from alembic import op
@@ -43,6 +37,5 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    # При наличии связанных данных RESTRICT остановит откат и сохранит целостность.
     op.execute("DELETE FROM task_statuses WHERE code IN ('new','in_progress','done','cancelled')")
     op.execute("DELETE FROM roles WHERE code IN ('admin','director','department_head','employee')")

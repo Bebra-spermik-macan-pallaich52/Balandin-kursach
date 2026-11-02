@@ -1,5 +1,3 @@
-"""Заполнение учебной базы вымышленными данными: python -m scripts.seed_demo."""
-
 import base64
 import hashlib
 import secrets
@@ -8,7 +6,7 @@ from datetime import date, datetime, timedelta, timezone
 from sqlalchemy import Engine, select
 from sqlalchemy.orm import Session
 
-from app.database import get_engine
+from app.database import engine
 from app.models import (
     Department,
     Employee,
@@ -54,34 +52,26 @@ WORK = [
 
 
 def disabled_password_hash() -> str:
-    """Случайный неизвестный пароль; демо-аккаунты дополнительно отключены."""
     salt = secrets.token_bytes(16)
-    digest = hashlib.pbkdf2_hmac("sha256", secrets.token_bytes(32), salt, 600_000)
+    digest = hashlib.pbkdf2_hmac("sha256", secrets.token_bytes(32), salt, 600000)
     return (
         "pbkdf2_sha256$600000$"
         + base64.b64encode(salt).decode()
         + "$"
-        + (base64.b64encode(digest).decode())
+        + base64.b64encode(digest).decode()
     )
 
 
 def seed(engine: Engine) -> bool:
-    """Вся загрузка в одной транзакции; повторный запуск не добавляет копии.
-
-    При частичном/постороннем наборе DEMO* выдается ошибка вместо изменения чужих данных.
-    """
     with Session(engine) as session, session.begin():
         existing = session.scalars(
-            select(Department.code).where(
-                Department.code.like("DEMO%"),
-            )
+            select(Department.code).where(Department.code.like("DEMO%"))
         ).all()
         if existing:
             expected = {f"DEMO{i:02d}" for i in range(1, 51)}
             if set(existing) != expected:
                 raise RuntimeError("Обнаружен неполный набор DEMO-подразделений")
             return False
-
         departments = [
             Department(code=f"DEMO{i:02d}", name=f"Учебный производственный участок № {i:02d}")
             for i in range(1, 51)
@@ -130,11 +120,10 @@ def seed(engine: Engine) -> bool:
             employees.append(employee)
             users.append(user)
         session.flush()
-
         now = datetime.now(timezone.utc)
         for i in range(200):
             employee = employees[i % 100]
-            creator = users[(i % 100) // 2 * 2]
+            creator = users[i % 100 // 2 * 2]
             status = ("new", "in_progress", "done", "cancelled")[i % 4]
             created_at = now - timedelta(days=15 + i % 120)
             due_at = created_at + timedelta(days=10 + i % 40)
@@ -181,7 +170,7 @@ def seed(engine: Engine) -> bool:
 
 
 def main() -> None:
-    inserted = seed(get_engine())
+    inserted = seed(engine)
     print("Демо-данные добавлены." if inserted else "Демо-данные уже присутствуют.")
 
 
